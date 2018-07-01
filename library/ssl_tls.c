@@ -9133,7 +9133,7 @@ void mbedtls_ssl_free( mbedtls_ssl_context *ssl )
 #endif
 
 #if defined (MBEDTLS_SSL_DTLS_SRTP)
-    mbedtls_zeroize( ssl->dtls_srtp_info.dtls_srtp_keys, ssl->dtls_srtp_info.dtls_srtp_keys_len );
+    mbedtls_platform_zeroize( ssl->dtls_srtp_info.dtls_srtp_keys, ssl->dtls_srtp_info.dtls_srtp_keys_len );
  //   mbedtls_free( ssl->dtls_srtp_keys );
 #endif /* MBEDTLS_SSL_DTLS_SRTP */
 

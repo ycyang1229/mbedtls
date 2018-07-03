@@ -161,7 +161,7 @@ int main( void )
 #define DFL_ETM                 -1
 #define DFL_USE_SRTP            0
 #define DFL_SRTP_FORCE_PROFILE  MBEDTLS_SRTP_UNSET_PROFILE
-#define DFL_SRTP_MKI            ""
+#define DFL_SRTP_SUPPORT_MKI    0
 
 #define LONG_RESPONSE "<p>01-blah-blah-blah-blah-blah-blah-blah-blah-blah\r\n" \
     "02-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah-blah\r\n"  \
@@ -336,7 +336,7 @@ int main( void )
     "                        2 - SRTP_AES128_CM_HMAC_SHA1_32\n"  \
     "                        3 - SRTP_NULL_HMAC_SHA1_80\n"       \
     "                        4 - SRTP_NULL_HMAC_SHA1_32\n"       \
-    "    mki=%%s              default: \"\" (in hex, without 0x)\n"
+    "    support_mki=%%d     default: 0 (not supported)\n"
 #else
 #define USAGE_SRTP ""
 #endif
@@ -526,7 +526,7 @@ struct options
     int badmac_limit;           /* Limit of records with bad MAC            */
     int use_srtp;               /* Support SRTP                             */
     int force_srtp_profile;     /* SRTP protection profile to use or all    */
-    const char* mki;            /* The dtls mki value to use                */
+    int support_mki;            /* The dtls mki mki support                 */
 } opt;
 
 int query_config( const char *config );
@@ -1293,10 +1293,6 @@ int main( int argc, char *argv[] )
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
     unsigned char alloc_buf[MEMORY_HEAP_SIZE];
 #endif
-#if defined(MBEDTLS_SSL_DTLS_SRTP)
-    unsigned char mki[MBEDTLS_DTLS_SRTP_MAX_MKI_LENGTH];
-    size_t mki_len = 0;
-#endif
     int i;
     char *p, *q;
     const int *list;
@@ -1425,7 +1421,7 @@ int main( int argc, char *argv[] )
     opt.etm                 = DFL_ETM;
     opt.use_srtp            = DFL_USE_SRTP;
     opt.force_srtp_profile  = DFL_SRTP_FORCE_PROFILE;
-    opt.mki                 = DFL_SRTP_MKI;
+    opt.support_mki         = DFL_SRTP_SUPPORT_MKI;
 
     for( i = 1; i < argc; i++ )
     {
@@ -1814,9 +1810,9 @@ int main( int argc, char *argv[] )
         {
             opt.force_srtp_profile = atoi( q );
         }
-        else if( strcmp( p, "mki" ) == 0 )
+        else if( strcmp( p, "support_mki" ) == 0 )
         {
-            opt.mki = q;
+            opt.support_mki = atoi( q );
         }
         else
             goto usage;
@@ -2341,6 +2337,11 @@ int main( int argc, char *argv[] )
             goto exit;
         }
 
+        mbedtls_ssl_conf_srtp_mki_value_supported( &conf,
+                                                   opt.support_mki ?
+                                                   MBEDTLS_SSL_DTLS_SRTP_MKI_SUPPORTED :
+                                                   MBEDTLS_SSL_DTLS_SRTP_MKI_UNSUPPORTED );
+
     }
     else if( opt.force_srtp_profile != DFL_SRTP_FORCE_PROFILE )
     {
@@ -2665,24 +2666,6 @@ int main( int argc, char *argv[] )
 #if defined(MBEDTLS_TIMING_C)
     mbedtls_ssl_set_timer_cb( &ssl, &timer, mbedtls_timing_set_delay,
                                             mbedtls_timing_get_delay );
-#endif
-
-#if defined(MBEDTLS_SSL_DTLS_SRTP)
-    if( opt.use_srtp != DFL_USE_SRTP &&  strlen( opt.mki ) != 0 )
-    {
-        if( unhexify( mki, opt.mki, &mki_len ) != 0 )
-        {
-            mbedtls_printf( "mki value not valid hex\n" );
-             goto exit;
-        }
-
-        mbedtls_ssl_conf_srtp_mki_value_supported( &conf, MBEDTLS_SSL_DTLS_SRTP_MKI_SUPPORTED );
-        if( ( ret = mbedtls_ssl_dtls_srtp_set_mki_value( &ssl, mki, mki_len) ) != 0 )
-        {
-            mbedtls_printf( " failed\n  ! mbedtls_ssl_dtls_srtp_set_mki_value returned %d\n\n", ret );
-            goto exit;
-        }
-    }
 #endif
 
     mbedtls_printf( " ok\n" );

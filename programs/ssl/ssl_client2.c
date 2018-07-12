@@ -555,7 +555,7 @@ struct options
     int skip_close_notify;      /* skip sending the close_notify alert      */
     int use_srtp;               /* Support SRTP                             */
     int force_srtp_profile;     /* SRTP protection profile to use or all    */
-    const char* mki;            /* The dtls mki value to use                */
+    const char *mki;            /* The dtls mki value to use                */
 } opt;
 
 int query_config( const char *config );
@@ -2329,7 +2329,9 @@ int main( int argc, char *argv[] )
         if( opt.force_srtp_profile != DFL_SRTP_FORCE_PROFILE )
         {
             const mbedtls_ssl_srtp_profile forced_profile[] = { opt.force_srtp_profile };
-            ret = mbedtls_ssl_conf_dtls_srtp_protection_profiles( &conf, forced_profile, sizeof( forced_profile ) / sizeof( mbedtls_ssl_srtp_profile ) );
+            ret = mbedtls_ssl_conf_dtls_srtp_protection_profiles( &conf,
+                                                                  forced_profile,
+                                                                  sizeof( forced_profile ) / sizeof( mbedtls_ssl_srtp_profile ) );
         }
         else
         {
@@ -2337,7 +2339,9 @@ int main( int argc, char *argv[] )
                                                                   MBEDTLS_SRTP_AES128_CM_HMAC_SHA1_32,
                                                                   MBEDTLS_SRTP_NULL_HMAC_SHA1_80,
                                                                   MBEDTLS_SRTP_NULL_HMAC_SHA1_32 };
-            ret = mbedtls_ssl_conf_dtls_srtp_protection_profiles( &conf, default_profiles, sizeof( default_profiles ) / sizeof( mbedtls_ssl_srtp_profile ) );
+            ret = mbedtls_ssl_conf_dtls_srtp_protection_profiles( &conf,
+                                                                  default_profiles,
+                                                                  sizeof( default_profiles ) / sizeof( mbedtls_ssl_srtp_profile ) );
         }
 
         if( ret != 0 )
@@ -2600,7 +2604,8 @@ int main( int argc, char *argv[] )
         }
 
         mbedtls_ssl_conf_srtp_mki_value_supported( &conf, MBEDTLS_SSL_DTLS_SRTP_MKI_SUPPORTED );
-        if( ( ret = mbedtls_ssl_dtls_srtp_set_mki_value( &ssl, mki, strlen( mki )) ) != 0 )
+        if( ( ret = mbedtls_ssl_dtls_srtp_set_mki_value( &ssl, mki,
+                                                         strlen( mki ) ) ) != 0 )
         {
             mbedtls_printf( " failed\n  ! mbedtls_ssl_dtls_srtp_set_mki_value returned %d\n\n", ret );
             goto exit;

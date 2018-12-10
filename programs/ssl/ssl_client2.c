@@ -515,13 +515,15 @@ static int ssl_sig_hashes_for_test[] = {
  * Convert a hex string to bytes.
  * Return 0 on success, -1 on error.
  */
-int unhexify( unsigned char *output, const char *input, size_t *olen )
+int unhexify( unsigned char *output, const char *input,
+              const size_t out_buf_size, size_t *olen )
 {
     unsigned char c;
     size_t j;
 
     *olen = strlen( input );
-    if( *olen % 2 != 0 || *olen / 2 > MBEDTLS_PSK_MAX_LEN )
+    if( *olen % 2 != 0 ||
+        *olen / 2 > out_buf_size )
         return( -1 );
     *olen /= 2;
 
@@ -1155,7 +1157,7 @@ int main( int argc, char *argv[] )
     /*
      * Unhexify the pre-shared key if any is given
      */
-    if( unhexify( psk, opt.psk, &psk_len ) != 0 )
+    if( unhexify( psk, opt.psk, sizeof( psk ), &psk_len ) != 0 )
     {
         mbedtls_printf( "pre-shared key not valid hex\n" );
         goto exit;
@@ -1663,7 +1665,7 @@ int main( int argc, char *argv[] )
     #if defined(MBEDTLS_SSL_DTLS_SRTP)
     if( opt.use_srtp != DFL_USE_SRTP &&  strlen( opt.mki ) != 0 )
     {
-        if( unhexify( mki, opt.mki, &mki_len ) != 0 )
+        if( unhexify( mki, opt.mki, sizeof( mki ), &mki_len ) != 0 )
         {
             mbedtls_printf( "mki value not valid hex\n" );
              goto exit;

@@ -323,8 +323,8 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
     socklen_t n = (socklen_t) sizeof( client_addr );
     socklen_t type_len = (socklen_t) sizeof( type );
 #else
-    int n = (int) sizeof( client_addr );
-    int type_len = (int) sizeof( type );
+    unsigned int n = (unsigned int) sizeof( client_addr );
+    unsigned int type_len = (unsigned int) sizeof( type );
 #endif
 
     /* Is this a TCP or UDP socket? */

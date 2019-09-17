@@ -5640,7 +5640,7 @@ static int ssl_parse_certificate_chain( mbedtls_ssl_context *ssl )
 
 int mbedtls_ssl_parse_certificate( mbedtls_ssl_context *ssl )
 {
-    int ret;
+    int ret = 0;
     const mbedtls_ssl_ciphersuite_t * const ciphersuite_info =
           ssl->transform_negotiate->ciphersuite_info;
 #if defined(MBEDTLS_SSL_SRV_C) && defined(MBEDTLS_SSL_SERVER_NAME_INDICATION)

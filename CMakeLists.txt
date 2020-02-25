@@ -47,8 +47,10 @@ set(CTR_DRBG_128_BIT_KEY_WARNING "${WARNING_BORDER}"
                          "${WARNING_BORDER}")
 
 find_package(PythonInterp)
-find_package(Perl)
-if(PERL_FOUND)
+#find_package(Perl)
+
+find_program(PERL_EXECUTABLE perl PATHS "c:\\MinGW\\msys\\1.0\\bin" )
+if(PERL_EXECUTABLE)
 
     # If 128-bit keys are configured for CTR_DRBG, display an appropriate warning
     execute_process(COMMAND ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/config.pl -f ${CMAKE_CURRENT_SOURCE_DIR}/include/mbedtls/config.h get MBEDTLS_CTR_DRBG_USE_128_BIT_KEY
@@ -77,6 +79,8 @@ option: \n\
             return()
         endif()
     endif()
+else()
+    message( FATAL_ERROR "Perl executable not found." )
 endif()
 
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}

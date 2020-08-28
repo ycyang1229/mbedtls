@@ -4745,7 +4745,7 @@ int mbedtls_ssl_dtls_srtp_set_mki_value( mbedtls_ssl_context *ssl,
     ssl->dtls_srtp_info.mki_len = mki_len;
     return( 0 );
 }
-
+/**#webrtc.*/
 int mbedtls_ssl_conf_dtls_srtp_protection_profiles( mbedtls_ssl_config *conf,
                                                     const mbedtls_ssl_srtp_profile *profiles,
                                                     size_t profiles_number )

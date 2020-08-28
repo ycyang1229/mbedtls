@@ -1,134 +1,28 @@
-DESTDIR=/usr/local
-PREFIX=mbedtls_
+##
+##  LITEOSTOPDIR=${OSDRV_DIR}/platform/liteos/liteos
+##
 
-.SILENT:
+include $(LITEOSTOPDIR)/config.mk
 
-.PHONY: all no_test programs lib tests install uninstall clean test check covtest lcov apidoc apidoc_clean
+ARFLAGS = cr
 
-all: programs tests
-	$(MAKE) post_build
+##LITEOS_LD_OPTS
 
-no_test: programs
+##LOCAL_C_FLAGS="-O2 -fno-pic -fno-aggressive-loop-optimizations -fno-builtin -nostdinc -nostdlib  -fstack-protector --param ssp-buffer-size=4 -mno-unaligned-access -Wnonnull -std=c99 -Wpointer-arith -Wstrict-prototypes -Winvalid-pch -Wno-write-strings -ffunction-sections -fdata-sections -fno-exceptions -fno-omit-frame-pointer -mthumb-interwork -fno-short-enums -Wno-error=misleading-indentation -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/include  -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/extended/cppsupport -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/extended/dynload/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/extended/runstop    -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/extended/scatter -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/extended/tickless       -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/compat/posix/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/compat/linux/include  -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/vfs/include/driver        -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/vfs/include/bcache -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/vfs/include/multi_partition    -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/proc/include  -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/fs/fat/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/net/lwip_sack/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/net/lwip_sack/include/ipv4 -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/net/mac     -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libc/kernel/uapi/asm-arm -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libc/arch-arm/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libc/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libc/kernel/uapi -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libsec/include       -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/libm/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/lib/zlib/include       -I /opt/hisi-linux/x86-arm/arm-himix100-linux/lib/gcc/arm-linux-androideabi/6.3.0/include    -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/gpio/include            -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/i2c/include         -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/mmc/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/mmc/host -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/mtd/nand/include   -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/mtd/spi_nor/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/random/include     -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/rtc/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/spi/include        -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/usb        -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/base/include        -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/video/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/shell/include      -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/drivers/uart/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/net/telnet/include  -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/platform/cpu/arm/arm-a/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/platform/bsp/board/hi3518ev300/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/platform/bsp/common -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/platform/bsp/common/pm -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/platform/cpu/arm/arm-a/cortex-a7/include -I /home/iotlab/scofield/_workspace/rtos-porting/hi3518-sdk/drv/extdrv/wifi_project/../../../osdrv/platform/liteos/liteos/kernel/base/include"
 
-programs: lib
-	$(MAKE) -C programs
+#-DCMAKE_C_FLAGS=${LITEOS_CFLAGS} 
 
-lib:
-	$(MAKE) -C library
-
-tests: lib
-	$(MAKE) -C tests
-
-ifndef WINDOWS
-install: no_test
-	mkdir -p $(DESTDIR)/include/mbedtls
-	cp -rp include/mbedtls $(DESTDIR)/include
-	mkdir -p $(DESTDIR)/include/psa
-	cp -rp include/psa $(DESTDIR)/include
-
-	mkdir -p $(DESTDIR)/lib
-	cp -RP library/libmbedtls.*    $(DESTDIR)/lib
-	cp -RP library/libmbedx509.*   $(DESTDIR)/lib
-	cp -RP library/libmbedcrypto.* $(DESTDIR)/lib
-
-	mkdir -p $(DESTDIR)/bin
-	for p in programs/*/* ; do              \
-	    if [ -x $$p ] && [ ! -d $$p ] ;     \
-	    then                                \
-	        f=$(PREFIX)`basename $$p` ;     \
-	        cp $$p $(DESTDIR)/bin/$$f ;     \
-	    fi                                  \
-	done
-
-uninstall:
-	rm -rf $(DESTDIR)/include/mbedtls
-	rm -f $(DESTDIR)/lib/libmbedtls.*
-	rm -f $(DESTDIR)/lib/libmbedx509.*
-	rm -f $(DESTDIR)/lib/libmbedcrypto.*
-
-	for p in programs/*/* ; do              \
-	    if [ -x $$p ] && [ ! -d $$p ] ;     \
-	    then                                \
-	        f=$(PREFIX)`basename $$p` ;     \
-	        rm -f $(DESTDIR)/bin/$$f ;      \
-	    fi                                  \
-	done
-endif
-
-WARNING_BORDER      =*******************************************************\n
-NULL_ENTROPY_WARN_L1=****  WARNING!  MBEDTLS_TEST_NULL_ENTROPY defined! ****\n
-NULL_ENTROPY_WARN_L2=****  THIS BUILD HAS NO DEFINED ENTROPY SOURCES    ****\n
-NULL_ENTROPY_WARN_L3=****  AND IS *NOT* SUITABLE FOR PRODUCTION USE     ****\n
-
-NULL_ENTROPY_WARNING=\n$(WARNING_BORDER)$(NULL_ENTROPY_WARN_L1)$(NULL_ENTROPY_WARN_L2)$(NULL_ENTROPY_WARN_L3)$(WARNING_BORDER)
-
-WARNING_BORDER_LONG      =**********************************************************************************\n
-CTR_DRBG_128_BIT_KEY_WARN_L1=****  WARNING!  MBEDTLS_CTR_DRBG_USE_128_BIT_KEY defined!                      ****\n
-CTR_DRBG_128_BIT_KEY_WARN_L2=****  Using 128-bit keys for CTR_DRBG limits the security of generated         ****\n
-CTR_DRBG_128_BIT_KEY_WARN_L3=****  keys and operations that use random values generated to 128-bit security ****\n
-
-CTR_DRBG_128_BIT_KEY_WARNING=\n$(WARNING_BORDER_LONG)$(CTR_DRBG_128_BIT_KEY_WARN_L1)$(CTR_DRBG_128_BIT_KEY_WARN_L2)$(CTR_DRBG_128_BIT_KEY_WARN_L3)$(WARNING_BORDER_LONG)
-
-# Post build steps
-post_build:
-ifndef WINDOWS
-
-	# If 128-bit keys are configured for CTR_DRBG, display an appropriate warning
-	-scripts/config.py get MBEDTLS_CTR_DRBG_USE_128_BIT_KEY && ([ $$? -eq 0 ]) && \
-	    echo '$(CTR_DRBG_128_BIT_KEY_WARNING)'
-
-	# If NULL Entropy is configured, display an appropriate warning
-	-scripts/config.py get MBEDTLS_TEST_NULL_ENTROPY && ([ $$? -eq 0 ]) && \
-	    echo '$(NULL_ENTROPY_WARNING)'
-endif
+all:
+	export LDFLAGS="${LITEOS_LD_OPTS}"
+	rm -rf build/ && \
+	mkdir -p build/ && \
+	cd build/ && \
+	ls && \
+	pwd && \
+	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cross-los.cmake  -DCMAKE_C_FLAGS="${LITEOS_CFLAGS}" -DCMAKE_INSTALL_PREFIX="/" && \
+	make DESTDIR="$(ROOTOUT)" install
 
 clean:
-	$(MAKE) -C library clean
-	$(MAKE) -C programs clean
-	$(MAKE) -C tests clean
-ifndef WINDOWS
-	find . \( -name \*.gcno -o -name \*.gcda -o -name \*.info \) -exec rm {} +
-endif
+	rm -rf $(OUT)/lib/*.a
 
-check: lib tests
-	$(MAKE) -C tests check
-
-test: check
-
-ifndef WINDOWS
-# note: for coverage testing, build with:
-# make CFLAGS='--coverage -g3 -O0'
-covtest:
-	$(MAKE) check
-	programs/test/selftest
-	tests/compat.sh
-	tests/ssl-opt.sh
-
-lcov:
-	rm -rf Coverage
-	lcov --capture --initial --directory library -o files.info
-	lcov --capture --directory library -o tests.info
-	lcov --add-tracefile files.info --add-tracefile tests.info -o all.info
-	lcov --remove all.info -o final.info '*.h'
-	gendesc tests/Descriptions.txt -o descriptions
-	genhtml --title "mbed TLS" --description-file descriptions --keep-descriptions --legend --no-branch-coverage -o Coverage final.info
-	rm -f files.info tests.info all.info final.info descriptions
-
-apidoc:
-	mkdir -p apidoc
-	cd doxygen && doxygen mbedtls.doxyfile
-
-apidoc_clean:
-	rm -rf apidoc
-endif
-
-## Editor navigation files
-C_SOURCE_FILES = $(wildcard include/*/*.h library/*.[hc] programs/*/*.[hc] tests/suites/*.function)
-# Exuberant-ctags invocation. Other ctags implementations may require different options.
-CTAGS = ctags --langmap=c:+.h.function -o
-tags: $(C_SOURCE_FILES)
-	$(CTAGS) $@ $(C_SOURCE_FILES)
-TAGS: $(C_SOURCE_FILES)
-	etags -o $@ $(C_SOURCE_FILES)
-GPATH GRTAGS GSYMS GTAGS: $(C_SOURCE_FILES)
-	ls $(C_SOURCE_FILES) | gtags -f - --gtagsconf .globalrc
+.PHONY: all clean

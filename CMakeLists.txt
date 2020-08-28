@@ -50,6 +50,8 @@ set(CTR_DRBG_128_BIT_KEY_WARNING "${WARNING_BORDER}"
                          "${CTR_DRBG_128_BIT_KEY_WARN_L3}"
                          "${WARNING_BORDER}")
 
+add_definitions(-Wno-implicit-function-declaration)
+
 # Python 3 is only needed here to check for configuration warnings.
 find_package(PythonInterp 3)
 if(PYTHONINTERP_FOUND)

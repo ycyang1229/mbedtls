@@ -380,7 +380,14 @@ size_t read_next_b64_code( uint8_t **b64, size_t *max_len )
     size_t len = 0;
     char pad = 0;
     char c = 0;
-
+    /** 
+        #YC_TBD.
+        /home/iotlab/scofield/_workspace/rtos-porting/kvs-webrtc-mbedtls/open-source/libmbedtls/build/src/project_libmbedtls/programs/ssl/ssl_context_info.c:384:16: error: comparison is always true due to limited range of data type [-Werror=type-limits]
+            while( EOF != c )
+                        ^~
+        cc1: all warnings being treated as errors
+    
+    */
     while( EOF != c )
     {
         char c_valid = 0;

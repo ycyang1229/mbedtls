@@ -5656,17 +5656,17 @@ int mbedtls_ssl_parse_certificate( mbedtls_ssl_context *ssl )
     const mbedtls_ssl_ciphersuite_t * const ciphersuite_info =
           ssl->transform_negotiate->ciphersuite_info;
 #if defined(MBEDTLS_SSL_SRV_C) && defined(MBEDTLS_SSL_SERVER_NAME_INDICATION)
-    const int authmode = ssl->handshake->sni_authmode != MBEDTLS_SSL_VERIFY_UNSET	    const int authmode = ssl->handshake->sni_authmode != MBEDTLS_SSL_VERIFY_UNSET
-                       ? ssl->handshake->sni_authmode	                       ? ssl->handshake->sni_authmode
+    const int authmode = ssl->handshake->sni_authmode != MBEDTLS_SSL_VERIFY_UNSET
+                       ? ssl->handshake->sni_authmode
 #if defined(MBEDTLS_SSL_DTLS_SRTP)
                        : ssl->dtls_srtp_info.chosen_dtls_srtp_profile !=
                                MBEDTLS_SRTP_UNSET_PROFILE
                        && ssl->conf->authmode == MBEDTLS_SSL_VERIFY_NONE
                        ? MBEDTLS_SSL_VERIFY_OPTIONAL
 #endif /* MBEDTLS_SSL_DTLS_SRTP */
-                       : ssl->conf->authmode;	                       : ssl->conf->authmode;
-#else	#else
-    const int authmode = ssl->conf->authmode;	    const int authmode =
+                       : ssl->conf->authmode;
+#else
+    const int authmode = ssl->conf->authmode;
 #if defined(MBEDTLS_SSL_DTLS_SRTP)
             ssl->dtls_srtp_info.chosen_dtls_srtp_profile !=
                                            MBEDTLS_SRTP_UNSET_PROFILE &&
@@ -5674,7 +5674,7 @@ int mbedtls_ssl_parse_certificate( mbedtls_ssl_context *ssl )
             MBEDTLS_SSL_VERIFY_OPTIONAL :
 #endif /* MBEDTLS_SSL_DTLS_SRTP */
             ssl->conf->authmode;
-#endif	#endif
+#endif
     void *rs_ctx = NULL;
 
     MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> parse certificate" ) );

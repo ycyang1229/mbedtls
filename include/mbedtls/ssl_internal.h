@@ -827,4 +827,6 @@ int mbedtls_ssl_get_key_exchange_md_tls1_2( mbedtls_ssl_context *ssl,
 }
 #endif
 
+void mbedtls_ssl_reset_in_out_pointers( mbedtls_ssl_context *ssl );
+
 #endif /* ssl_internal.h */

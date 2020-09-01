@@ -1,6 +1,8 @@
 README for Mbed TLS
 ===================
 
+This git branch is from https://gitlab.linphone.org/BC/public/external/mbedtls
+
 Mbed TLS is a C library that implements cryptographic primitives, X.509 certificate manipulation and the SSL/TLS and DTLS protocols. Its small code footprint makes it suitable for embedded systems.
 
 Configuration

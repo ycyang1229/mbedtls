@@ -2446,7 +2446,7 @@ static void ssl_write_alpn_ext( mbedtls_ssl_context *ssl,
 }
 #endif /* MBEDTLS_ECDH_C || MBEDTLS_ECDSA_C */
 
-#if defined(MBEDTLS_SSL_DTLS_SRTP ) && defined(MBEDTLS_SSL_PROTO_DTLS)
+#if defined(MBEDTLS_SSL_DTLS_SRTP ) 
 static void ssl_write_use_srtp_ext( mbedtls_ssl_context *ssl,
                                     unsigned char *buf,
                                     size_t *olen )

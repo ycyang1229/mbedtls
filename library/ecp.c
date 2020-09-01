@@ -1785,7 +1785,7 @@ static int ecp_mul_comb_core( const mbedtls_ecp_group *grp, mbedtls_ecp_point *R
                               void *p_rng,
                               mbedtls_ecp_restart_ctx *rs_ctx )
 {
-    int ret;
+    int ret = 0;
     mbedtls_ecp_point Txi;
     size_t i;
 

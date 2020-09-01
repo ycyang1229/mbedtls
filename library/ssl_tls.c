@@ -1029,6 +1029,8 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
 #if defined(MBEDTLS_SSL_HW_RECORD_ACCEL)
     if( mbedtls_ssl_hw_record_init != NULL )
     {
+        int ret = 0;
+
         MBEDTLS_SSL_DEBUG_MSG( 2, ( "going for mbedtls_ssl_hw_record_init()" ) );
 
         if( ( ret = mbedtls_ssl_hw_record_init( ssl, key1, key2, transform->keylen,

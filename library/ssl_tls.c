@@ -607,6 +607,92 @@ static void ssl_calc_finished_tls_sha384( mbedtls_ssl_context *, unsigned char *
 #endif
 #endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
 
+
+#if defined(MBEDTLS_SSL_EXPORT_KEYS)
+static mbedtls_tls_prf_types tls_prf_get_type( mbedtls_ssl_tls_prf_cb *tls_prf )
+{
+#if defined(MBEDTLS_SSL_PROTO_SSL3)
+    if( tls_prf == ssl3_prf )
+    {
+        return( MBEDTLS_SSL_TLS_PRF_SSL3 );
+    }
+    else
+#endif
+#if defined(MBEDTLS_SSL_PROTO_TLS1) || defined(MBEDTLS_SSL_PROTO_TLS1_1)
+    if( tls_prf == tls1_prf )
+    {
+        return( MBEDTLS_SSL_TLS_PRF_TLS1 );
+    }
+    else
+#endif
+#if defined(MBEDTLS_SSL_PROTO_TLS1_2)
+#if defined(MBEDTLS_SHA512_C)
+    if( tls_prf == tls_prf_sha384 )
+    {
+        return( MBEDTLS_SSL_TLS_PRF_SHA384 );
+    }
+    else
+#endif
+#if defined(MBEDTLS_SHA256_C)
+    if( tls_prf == tls_prf_sha256 )
+    {
+        return( MBEDTLS_SSL_TLS_PRF_SHA256 );
+    }
+    else
+#endif
+#endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
+    return( MBEDTLS_SSL_TLS_PRF_NONE );
+}
+#endif /* MBEDTLS_SSL_EXPORT_KEYS */
+
+
+int  mbedtls_ssl_tls_prf( const mbedtls_tls_prf_types prf,
+                          const unsigned char *secret, size_t slen,
+                          const char *label,
+                          const unsigned char *random, size_t rlen,
+                          unsigned char *dstbuf, size_t dlen )
+{
+    mbedtls_ssl_tls_prf_cb *tls_prf = NULL;
+
+    switch( prf )
+    {
+#if defined(MBEDTLS_SSL_PROTO_SSL3)
+        case MBEDTLS_SSL_TLS_PRF_SSL3:
+            tls_prf = ssl3_prf;
+        break;
+#endif /* MBEDTLS_SSL_PROTO_SSL3 */
+#if defined(MBEDTLS_SSL_PROTO_TLS1) || defined(MBEDTLS_SSL_PROTO_TLS1_1)
+        case MBEDTLS_SSL_TLS_PRF_TLS1:
+            tls_prf = tls1_prf;
+        break;
+#endif /* MBEDTLS_SSL_PROTO_TLS1 || MBEDTLS_SSL_PROTO_TLS1_1 */
+
+#if defined(MBEDTLS_SSL_PROTO_TLS1_2)
+#if defined(MBEDTLS_SHA512_C)
+        case MBEDTLS_SSL_TLS_PRF_SHA384:
+            tls_prf = tls_prf_sha384;
+        break;
+#endif /* MBEDTLS_SHA512_C */
+#if defined(MBEDTLS_SHA256_C)
+        case MBEDTLS_SSL_TLS_PRF_SHA256:
+            tls_prf = tls_prf_sha256;
+        break;
+#endif /* MBEDTLS_SHA256_C */
+#endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
+    default:
+        return( MBEDTLS_ERR_SSL_FEATURE_UNAVAILABLE );
+    }
+
+    return( tls_prf( secret, slen, label, random, rlen, dstbuf, dlen ) );
+}
+
+
+/* Type for the TLS PRF */
+typedef int ssl_tls_prf_t(const unsigned char *, size_t, const char *,
+                          const unsigned char *, size_t,
+                          unsigned char *, size_t);
+
+
 int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
 {
     int ret = 0;
@@ -795,7 +881,9 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
     memcpy( handshake->randbytes, tmp + 32, 32 );
     memcpy( handshake->randbytes + 32, tmp, 32 );
     mbedtls_platform_zeroize( tmp, sizeof( tmp ) );
-
+    /**
+     * #YC_TBD, the newer version one uses ssl_populate_transform().#start
+    */
     /*
      *  SSLv3:
      *    key block =
@@ -822,8 +910,11 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
     MBEDTLS_SSL_DEBUG_BUF( 4, "random bytes", handshake->randbytes, 64 );
     MBEDTLS_SSL_DEBUG_BUF( 4, "key block", keyblk, 256 );
 
-    mbedtls_platform_zeroize( handshake->randbytes,
-                              sizeof( handshake->randbytes ) );
+    /**
+     * #YC_TBD, the newer version one uses ssl_populate_transform(). #end
+    */
+    //mbedtls_platform_zeroize( handshake->randbytes,
+    //                          sizeof( handshake->randbytes ) );
 
     /*
      * Determine the appropriate key, IV and MAC length.
@@ -1049,10 +1140,28 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
     if( ssl->conf->f_export_keys != NULL )
     {
         ssl->conf->f_export_keys( ssl->conf->p_export_keys,
-                                  session->master, keyblk,
-                                  mac_key_len, transform->keylen,
+                                  session->master, 
+                                  keyblk,
+                                  mac_key_len, 
+                                  transform->keylen,
                                   iv_copy_len );
     }
+    /**#YC_TBD. */
+    if( ssl->conf->f_export_keys_ext != NULL )
+    {
+        ssl->conf->f_export_keys_ext( ssl->conf->p_export_keys,
+                                      session->master, 
+                                      keyblk,
+                                      mac_key_len, 
+                                      transform->keylen,
+                                      iv_copy_len,
+                                      handshake->randbytes + 32,
+                                      handshake->randbytes,
+                                      tls_prf_get_type( ssl->handshake->tls_prf ) );
+    }
+
+    mbedtls_platform_zeroize( handshake->randbytes,
+                              sizeof( handshake->randbytes ) );
 #endif
 
     if( ( ret = mbedtls_cipher_setup( &transform->cipher_ctx_enc,
@@ -7906,6 +8015,14 @@ void mbedtls_ssl_conf_export_keys_cb( mbedtls_ssl_config *conf,
         void *p_export_keys )
 {
     conf->f_export_keys = f_export_keys;
+    conf->p_export_keys = p_export_keys;
+}
+
+void mbedtls_ssl_conf_export_keys_ext_cb( mbedtls_ssl_config *conf,
+        mbedtls_ssl_export_keys_ext_t *f_export_keys_ext,
+        void *p_export_keys )
+{
+    conf->f_export_keys_ext = f_export_keys_ext;
     conf->p_export_keys = p_export_keys;
 }
 #endif
